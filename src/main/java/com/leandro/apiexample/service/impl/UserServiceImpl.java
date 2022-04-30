@@ -1,6 +1,7 @@
 package com.leandro.apiexample.service.impl;
 
 import com.leandro.apiexample.domain.User;
+import com.leandro.apiexample.exception.NotFoundException;
 import com.leandro.apiexample.repository.UserRepository;
 import com.leandro.apiexample.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findById(Integer id) {
-        return userRepository.findById(id).orElse(null);
+        return userRepository.findById(id).orElseThrow(() -> new NotFoundException("Object not found!"));
     }
 }
