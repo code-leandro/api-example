@@ -6,6 +6,7 @@ import com.leandro.apiexample.exception.NotFoundException;
 import com.leandro.apiexample.repository.UserRepository;
 import com.leandro.apiexample.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
@@ -33,9 +35,29 @@ public class UserServiceImpl implements UserService {
         return userRepository.save(user);
     }
 
+    @Override
+    public User update(User user) {
+        log.info("Updating {}", user);
+        validationEmailUpdate(user.getId(), user.getEmail());
+        return userRepository.save(user);
+    }
+
+    @Override
+    public void delete(Integer id) {
+        userRepository.delete(findById(id));
+    }
+
     public void validationEmailExist(User user) {
-        Optional<User> userFound = userRepository.findByEmail(user.getEmail());
-        if (userFound.isPresent())
+        List<User> listUsers = userRepository.findByEmail(user.getEmail());
+        if (! listUsers.isEmpty())
             throw new DataIntegrityViolationException("Email already exist!");
+    }
+
+    public void validationEmailUpdate(Integer idUpdate, String email) {
+        List<User> listUsers = userRepository.findByEmail(email);
+        List<User> otherUserWithEmail = listUsers.stream().filter(e -> !e.getId().equals(idUpdate)).toList();
+
+        if (! otherUserWithEmail.isEmpty())
+            throw new DataIntegrityViolationException("Email already in other user!");
     }
 }

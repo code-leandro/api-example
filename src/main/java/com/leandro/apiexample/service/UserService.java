@@ -9,4 +9,8 @@ public interface UserService {
     User findById(Integer id);
     List<User> findAll();
     User save(User user);
+
+    User update(User user);
+
+    void delete(Integer id);
 }
