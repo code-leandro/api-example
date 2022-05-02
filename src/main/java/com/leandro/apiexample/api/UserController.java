@@ -15,12 +15,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/user")
-@RequiredArgsConstructor
 @Slf4j
-public class UserResource {
-
-    private final UserService service;
-    private final ModelMapper mapper;
+public record UserController(UserService service, ModelMapper mapper) {
 
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO> findById(@PathVariable Integer id) {

@@ -24,7 +24,7 @@ public class ResourceExceptionHandler {
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<StandardError> notFound(DataIntegrityViolationException e, HttpServletRequest request){
+    public ResponseEntity<StandardError> dataIntegrityViolation(DataIntegrityViolationException e, HttpServletRequest request){
         StandardError standardError = StandardError.builder()
                 .error(e.getMessage())
                 .path(request.getRequestURI())

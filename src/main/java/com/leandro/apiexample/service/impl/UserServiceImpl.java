@@ -7,6 +7,7 @@ import com.leandro.apiexample.repository.UserRepository;
 import com.leandro.apiexample.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,11 +18,15 @@ import java.util.Optional;
 @Slf4j
 public class UserServiceImpl implements UserService {
 
+    public static final String OBJECT_NOT_FOUND = "Object not found!";
+    public static final String EMAIL_ALREADY_EXIST = "Email already exist!";
+    public static final String EMAIL_ALREADY_IN_OTHER_USER = "Email already in other user!";
     private final UserRepository userRepository;
 
     @Override
     public User findById(Integer id) {
-        return userRepository.findById(id).orElseThrow(() -> new NotFoundException("Object not found!"));
+        Optional<User> user = userRepository.findById(id);
+        return user.orElseThrow(() -> new NotFoundException(OBJECT_NOT_FOUND));
     }
 
     @Override
@@ -37,20 +42,20 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User update(User user) {
-        log.info("Updating {}", user);
         validationEmailUpdate(user.getId(), user.getEmail());
         return userRepository.save(user);
     }
 
     @Override
     public void delete(Integer id) {
-        userRepository.delete(findById(id));
+        findById(id);
+        userRepository.deleteById(id);
     }
 
-    public void validationEmailExist(User user) {
+    public void validationEmailExist(@NotNull User user) {
         List<User> listUsers = userRepository.findByEmail(user.getEmail());
         if (! listUsers.isEmpty())
-            throw new DataIntegrityViolationException("Email already exist!");
+            throw new DataIntegrityViolationException(EMAIL_ALREADY_EXIST);
     }
 
     public void validationEmailUpdate(Integer idUpdate, String email) {
@@ -58,6 +63,6 @@ public class UserServiceImpl implements UserService {
         List<User> otherUserWithEmail = listUsers.stream().filter(e -> !e.getId().equals(idUpdate)).toList();
 
         if (! otherUserWithEmail.isEmpty())
-            throw new DataIntegrityViolationException("Email already in other user!");
+            throw new DataIntegrityViolationException(EMAIL_ALREADY_IN_OTHER_USER);
     }
 }
